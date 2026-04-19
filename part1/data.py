@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -69,6 +67,45 @@ def describe_label(df: pd.DataFrame) -> None:
     table.index = table.index.map({0: "0 (no disease)", 1: "1 (disease)"})
     print(table.to_string())
     print(f"\nPositive rate: {df[LABEL].mean():.3f}")
+    print()
+
+
+def check_missing(df: pd.DataFrame) -> None:
+    print("=" * 72)
+    print("Missing values (NaN)")
+    print("=" * 72)
+    missing = df.isna().sum()
+    if missing.sum() == 0:
+        print("No NaN values in any column.")
+    else:
+        print(missing[missing > 0].to_string())
+    print()
+
+
+def check_nonsensical(df: pd.DataFrame) -> None:
+    print("=" * 72)
+    print("Nonsensical values")
+    print("=" * 72)
+    findings = []
+
+    chol_zeros = int((df["Cholesterol"] == 0).sum())
+    if chol_zeros:
+        findings.append(
+            f"Cholesterol == 0 in {chol_zeros} rows "
+            f"({chol_zeros / len(df):.1%}) — biologically impossible, "
+        )
+
+    bp_zeros = int((df["RestingBP"] == 0).sum())
+    if bp_zeros:
+        findings.append(
+            f"RestingBP == 0 in {bp_zeros} rows — biologically impossible."
+        )
+
+    if findings:
+        for line in findings:
+            print(f"- {line}")
+    else:
+        print("No nonsensical values found.")
     print()
 
 
@@ -160,6 +197,19 @@ def plot_numeric_correlation(df: pd.DataFrame, out: Path) -> None:
     plt.close(fig)
 
 
+def plot_numeric_boxplots(df: pd.DataFrame, out: Path) -> None:
+    cols = NUMERIC_FEATURES
+    fig, axes = plt.subplots(1, len(cols), figsize=(3 * len(cols), 4))
+    for ax, col in zip(axes, cols):
+        sns.boxplot(y=df[col], ax=ax, color="#4c72b0")
+        ax.set_title(col)
+        ax.set_xlabel("")
+    fig.suptitle("Boxplots — numeric features (outlier diagnostic)", y=1.02)
+    fig.tight_layout()
+    fig.savefig(out / "numeric_boxplots.png", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
 def main() -> None:
     sns.set_theme(style="whitegrid")
     np.set_printoptions(suppress=True)
@@ -174,10 +224,14 @@ def main() -> None:
     describe_categorical(df)
     describe_label(df)
 
+    check_missing(df)
+    check_nonsensical(df)
+
     plot_numeric_distributions(df, OUTPUT_DIR)
     plot_categorical_distributions(df, OUTPUT_DIR)
     plot_label_distribution(df, OUTPUT_DIR)
     plot_numeric_correlation(df, OUTPUT_DIR)
+    plot_numeric_boxplots(df, OUTPUT_DIR)
 
     print(f"Plots saved to {OUTPUT_DIR}")
 
