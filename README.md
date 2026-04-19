@@ -1,5 +1,18 @@
 # Project 2: Interpretability and Explainability
 
+## Project structure
+
+```
+ml4hc-project2/
+├── common/          # helpers shared across parts (metrics, plotting, utils)
+├── part1/           # heart disease
+├── part2/           # pneumonia
+├── outputs/         # generated plots and results
+│   ├── part1/
+│   └── part2/
+├── requirements.txt
+└── README.md
+```
 
 ## Data
 
