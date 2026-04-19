@@ -3,6 +3,7 @@ pandas
 pyarrow
 scikit-learn
 matplotlib
+seaborn
 torch
 torchvision
 tqdm
