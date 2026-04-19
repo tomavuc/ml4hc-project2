@@ -1,0 +1,16 @@
+# Python artifacts
+.venv/
+__pycache__/
+
+# Data
+outputs/*
+!outputs/.gitkeep
+
+# PyCharm
+.idea
+
+# General artifacts
+*.DS_Store
+
+# Experimental notebooks
+*.ipynb
