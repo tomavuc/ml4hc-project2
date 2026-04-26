@@ -14,8 +14,8 @@ if [ ! -d "$VENV_DIR" ]; then
 fi
 source "$VENV_DIR/bin/activate"
 
-TRAIN_DATA="$HOME/ml4h_data/p2/data/chest_xray/train"
-TEST_DATA="$HOME/ml4h_data/p2/data/chest_xray/test"
+TRAIN_PATH="$HOME/ml4h_data/p2/data/chest_xray/train"
+TEST_PATH="$HOME/ml4h_data/p2/data/chest_xray/test"
 MODEL_WEIGHTS="output/part2/models/densenet_shuffled.pth"
 OUTPUT_DIR="outputs/part2/shuffled"
 
