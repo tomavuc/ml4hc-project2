@@ -16,7 +16,7 @@ source "$VENV_DIR/bin/activate"
 
 TRAIN_PATH="$HOME/ml4h_data/p2/data/chest_xray/train"
 TEST_PATH="$HOME/ml4h_data/p2/data/chest_xray/test"
-MODEL_WEIGHTS="output/part2/models/densenet.pth"
+MODEL_WEIGHTS="outputs/part2/models/densenet.pth"
 OUTPUT_DIR="outputs/part2/normal"
 
 mkdir -p outputs/part2/models
