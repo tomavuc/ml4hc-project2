@@ -28,6 +28,7 @@ PYTHONUNBUFFERED=1 python3 -m part2.train \
   --train_path "$TRAIN_PATH" \
   --model_type="densenet" \
   --output_model "$MODEL_WEIGHTS" \
+  --batch_size 32 \
   --epochs 20
 
 PYTHONUNBUFFERED=1 python3 -m part2.evaluate \
