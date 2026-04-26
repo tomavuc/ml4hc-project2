@@ -114,6 +114,72 @@ def plot_xai_horizontal(model, gcam_obj, xai_type, loader, mean_list, std_list, 
     plt.close()
     print(f"Saved: {output_path}")
 
+def plot_xai_combined_horizontal(model, gcam_obj, xai_type, loader, mean_list, std_list, device, output_path, suptitle, n_samples=5):
+    """Plots a 2x5 grid of JUST the heatmaps: Top row is Normal, Bottom row is Pneumonia."""
+    normal_samples = []
+    pneumonia_samples = []
+
+    # Gather samples first
+    for images, labels in loader:
+        for i in range(len(images)):
+            label = labels[i].item()
+            if label == 0 and len(normal_samples) < n_samples:
+                normal_samples.append(images[i])
+            elif label == 1 and len(pneumonia_samples) < n_samples:
+                pneumonia_samples.append(images[i])
+            
+            if len(normal_samples) == n_samples and len(pneumonia_samples) == n_samples:
+                break
+        if len(normal_samples) == n_samples and len(pneumonia_samples) == n_samples:
+            break
+
+    fig, axes = plt.subplots(2, n_samples, figsize=(3 * n_samples, 6))
+    fig.suptitle(suptitle, fontsize=16, y=1.02, fontweight='bold')
+    
+    cmap_gcam = plt.get_cmap('jet')
+    cmap_ig = plt.get_cmap('hot')
+
+    def generate_xai_image(img_tensor_raw, class_idx):
+        img_tensor = img_tensor_raw.unsqueeze(0).to(device)
+        img_plot = denormalize(img_tensor[0], mean_list, std_list).permute(1, 2, 0).numpy()
+        
+        if xai_type == "gcam":
+            mask = gcam_obj.generate(img_tensor, class_idx=class_idx)
+            mask_tensor = torch.tensor(mask, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
+            heatmap_tensor = F.interpolate(mask_tensor, size=(224, 224), mode='bilinear', align_corners=False)
+            heatmap_gcam = heatmap_tensor.squeeze().numpy()
+            heatmap_rgb = cmap_gcam(heatmap_gcam)[:, :, :3]
+            overlay = np.clip(heatmap_rgb * 0.4 + img_plot * 0.6, 0, 1)
+            return overlay
+        elif xai_type == "ig":
+            attr = integrated_gradients(img_tensor, model, class_idx, device, steps=100)
+            heatmap_ig = np.sum(np.abs(attr), axis=0)
+            vmax = np.percentile(heatmap_ig, 99)
+            if vmax > 0: 
+                heatmap_ig = np.clip(heatmap_ig / vmax, 0, 1)
+            ig_rgb = cmap_ig(heatmap_ig)[:, :, :3]
+            return ig_rgb
+
+    # Process and Plot
+    for i in range(n_samples):
+        # Row 0: Normal
+        img_norm_xai = generate_xai_image(normal_samples[i], class_idx=0)
+        axes[0, i].imshow(img_norm_xai)
+        axes[0, i].axis('off')
+        if i == 0:
+            axes[0, i].set_title("Healthy (NORMAL)", fontsize=12, pad=10, loc='left')
+
+        # Row 1: Pneumonia
+        img_pneu_xai = generate_xai_image(pneumonia_samples[i], class_idx=1)
+        axes[1, i].imshow(img_pneu_xai)
+        axes[1, i].axis('off')
+        if i == 0:
+            axes[1, i].set_title("Disease (PNEUMONIA)", fontsize=12, pad=10, loc='left')
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"Saved: {output_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate horizontal 2x5 grids dynamically.")
@@ -185,6 +251,18 @@ if __name__ == "__main__":
         model, gcam, "ig", test_loader, mean_list, std_list, device,
         output_path=os.path.join(args.output_dir, "06_ig_pneumonia.png"),
         suptitle="Integrated Gradients: PNEUMONIA", category="PNEUMONIA"
+    )
+
+    print("\n--- Generating Combined XAI Class Comparison Grids ---")
+    plot_xai_combined_horizontal(
+        model, gcam, "gcam", test_loader, mean_list, std_list, device,
+        output_path=os.path.join(args.output_dir, "07_gcam_combined_classes.png"),
+        suptitle="Grad-CAM Comparison: Healthy vs. Disease"
+    )
+    plot_xai_combined_horizontal(
+        model, gcam, "ig", test_loader, mean_list, std_list, device,
+        output_path=os.path.join(args.output_dir, "08_ig_combined_classes.png"),
+        suptitle="Integrated Gradients Comparison: Healthy vs. Disease"
     )
 
     print(f"\nSuccess! All horizontal grids saved dynamically to {args.output_dir}")
