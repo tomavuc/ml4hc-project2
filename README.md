@@ -56,7 +56,7 @@ of added.
 
 In order to train and evaluate the model on the cluster, you can use the following:
 ```bash
-sbatch run_pipeline.sh
+sbatch part2/run_pipeline.sh
 ```
 
 If you'd like to simply train the model, you can use:
@@ -82,7 +82,7 @@ PYTHONUNBUFFERED=1 python3 -m part2.train \
 
 We also offer the ability to train the shuffled model (as per Q5) on the cluster:
 ```bash
-sbatch run_pipeline_shuffled.sh
+sbatch part2/run_pipeline_shuffled.sh
 ```
 
 Or manually:
@@ -104,8 +104,8 @@ They are implemented correspondingly in ig.py and gradcam.py. The two techniques
 
 The pipeline already generated the plots:
 ```bash
-sbatch run_pipeline.sh
-sbatch run_pipeline_shuffled.sh # Optionally for the shuffled model
+sbatch part2/run_pipeline.sh
+sbatch part2/run_pipeline_shuffled.sh # Optionally for the shuffled model
 ```
 
 You can manually use the plot_grid.py script to generate both Grad-CAM activation maps as well as a visualization of Integrated Gradients:
