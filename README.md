@@ -4,7 +4,6 @@
 
 ```
 ml4hc-project2/
-├── common/          # helpers shared across parts (metrics, plotting, utils)
 ├── part1/           # heart disease
 ├── part2/           # pneumonia
 ├── outputs/         # generated plots and results
@@ -21,6 +20,7 @@ Data is expected at `~/ml4h_data/p2/data/` and is not checked into the repositor
 ```
 ~/ml4h_data/p2/data/
 ├── heart.csv              # data for part 1 on heart disease
+├── splits_heart.csv       # train/test splits for part 1
 └── chest_xray/            # data for part 2 on pneumonia
     ├── train/
     │   ├── NORMAL/        # images, no pneumonia
@@ -38,7 +38,7 @@ Data is expected at `~/ml4h_data/p2/data/` and is not checked into the repositor
 We assume Python v3.12.3 (which should be the default on the cluster).
 
 ```bash
-cd ml4hc-project1
+cd ml4hc-project2
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt

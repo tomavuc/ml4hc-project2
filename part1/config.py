@@ -1,8 +1,13 @@
 """Configuration for Part 1 (heart disease)."""
 
-from common.config import DATA_DIR, OUTPUT_ROOT
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = Path.home() / "ml4h_data" / "p2" / "data"
+OUTPUT_ROOT = PROJECT_ROOT / "outputs"
 
 DATA_PATH = DATA_DIR / "heart.csv"
+SPLITS_PATH = DATA_DIR / "splits_heart.csv"
 OUTPUT_DIR = OUTPUT_ROOT / "part1"
 
 LABEL = "HeartDisease"
