@@ -1,8 +1,9 @@
+import argparse
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.linear_model import LogisticRegressionCV
+from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.metrics import (
     balanced_accuracy_score,
     classification_report,
@@ -85,7 +86,38 @@ def plot_feature_importance(
     print(f"\nPlots saved to {OUTPUT_DIR}")
 
 
+def fit_selected(lasso: LogisticRegressionCV, data: PreparedData, out: Path) -> None:
+    mask = lasso.coef_[0] != 0
+    selected_names = [n for n, m in zip(data.feature_names, mask) if m]
+    X_train_sel = data.X_train[:, mask]
+    X_test_sel = data.X_test[:, mask]
+
+    print(f"Selected {mask.sum()} / {len(mask)} features: {selected_names}\n")
+
+    model = LogisticRegression(C=1e9, solver="lbfgs", max_iter=1000, random_state=RANDOM_STATE)
+    model.fit(X_train_sel, data.y_train)
+
+    y_pred = model.predict(X_test_sel)
+    y_prob = model.predict_proba(X_test_sel)[:, 1]
+    bal_acc = balanced_accuracy_score(data.y_test, y_pred)
+    roc_auc = roc_auc_score(data.y_test, y_prob)
+    f1_macro = f1_score(data.y_test, y_pred, average="macro")
+    print("=" * 72)
+    print("Test-set performance (logistic regression on selected features)")
+    print("=" * 72)
+    print(f"Balanced accuracy : {bal_acc:.4f}")
+    print(f"F1                : {f1_macro:.4f}")
+    print(f"ROC-AUC           : {roc_auc:.4f}")
+    print()
+    print(classification_report(data.y_test, y_pred, target_names=["No disease", "Disease"]))
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--selected", action="store_true",
+                        help="Also run plain logistic regression on Lasso-selected features")
+    args = parser.parse_args()
+
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     data = prepare()
 
@@ -94,6 +126,9 @@ def main() -> None:
 
     report_metrics(model, data)
     plot_feature_importance(model, data, OUTPUT_DIR)
+
+    if args.selected:
+        fit_selected(model, data, OUTPUT_DIR)
 
 
 if __name__ == "__main__":
