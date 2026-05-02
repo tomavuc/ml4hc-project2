@@ -4,6 +4,7 @@ pyarrow
 scikit-learn
 matplotlib
 seaborn
+scikit-learn
 torch
 torchvision
 tqdm

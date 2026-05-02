@@ -20,3 +20,6 @@ CATEGORICAL_FEATURES = [
     "ExerciseAngina",
     "ST_Slope",
 ]
+ORDINAL_FEATURES = {
+    "ST_Slope": ["Up", "Flat", "Down"],  # Up=0 (normal response) → Down=2 (highest risk)
+}

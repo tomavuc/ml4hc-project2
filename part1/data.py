@@ -92,7 +92,7 @@ def check_nonsensical(df: pd.DataFrame) -> None:
     if chol_zeros:
         findings.append(
             f"Cholesterol == 0 in {chol_zeros} rows "
-            f"({chol_zeros / len(df):.1%}) — biologically impossible, "
+            f"({chol_zeros / len(df):.1%}) — biologically impossible "
         )
 
     bp_zeros = int((df["RestingBP"] == 0).sum())
