@@ -1,3 +1,6 @@
+from pathlib import Path
+
+import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.metrics import (
@@ -7,6 +10,7 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
+from part1.config import OUTPUT_DIR
 from part1.preprocess import PreparedData, prepare
 
 CV_FOLDS = 5
@@ -54,13 +58,42 @@ def report_metrics(
     print(f"Non-zero coefs    : {n_nonzero} / {len(model.coef_[0])}")
 
 
+def plot_feature_importance(
+    model: LogisticRegressionCV,
+    data: PreparedData,
+    out: Path,
+) -> None:
+    coefs = model.coef_[0]
+    order = np.argsort(coefs)
+    coefs_sorted = coefs[order]
+    names_sorted = [data.feature_names[i] for i in order]
+    colors = [
+        "#dd8452" if c > 0 else "#4c72b0" if c < 0 else "#cccccc"
+        for c in coefs_sorted
+    ]
+
+    fig, ax = plt.subplots(figsize=(8, max(4, len(coefs) * 0.4)))
+    ax.barh(names_sorted, coefs_sorted, color=colors)
+    ax.axvline(0, color="black", linewidth=0.8, linestyle="--")
+    ax.set_xlabel("Coefficient (log-odds per 1 std-dev or 0→1 change)")
+    ax.set_title("Logistic Lasso — feature coefficients\n"
+                 "orange = increases disease risk  ·  blue = protective  ·  grey = zeroed by L1")
+    fig.tight_layout()
+    fig.savefig(out / "lasso_coefficients.png", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    print(f"\nPlots saved to {OUTPUT_DIR}")
+
+
 def main() -> None:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     data = prepare()
 
     model = fit_lasso(data)
     print(f"Best C = {model.C_[0]:.5f} (selected by {CV_FOLDS}-fold CV on balanced accuracy)\n")
 
     report_metrics(model, data)
+    plot_feature_importance(model, data, OUTPUT_DIR)
 
 
 if __name__ == "__main__":
