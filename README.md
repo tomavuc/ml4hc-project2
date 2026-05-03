@@ -4,10 +4,9 @@
 
 ```
 ml4hc-project2/
-├── common/          # helpers shared across parts (metrics, plotting, utils)
 ├── part1/           # heart disease
 ├── part2/           # pneumonia
-├── outputs/         # generated plots and results
+├── outputs/         # generated plots and results (not checked into repository)
 │   ├── part1/
 │   └── part2/
 ├── requirements.txt
@@ -21,6 +20,7 @@ Data is expected at `~/ml4h_data/p2/data/` and is not checked into the repositor
 ```
 ~/ml4h_data/p2/data/
 ├── heart.csv              # data for part 1 on heart disease
+├── splits_heart.csv       # train/test splits for part 1
 └── chest_xray/            # data for part 2 on pneumonia
     ├── train/
     │   ├── NORMAL/        # images, no pneumonia
@@ -37,12 +37,74 @@ Data is expected at `~/ml4h_data/p2/data/` and is not checked into the repositor
 
 We assume Python v3.12.3 (which should be the default on the cluster).
 
+### Local (CPU)
+
 ```bash
-cd ml4hc-project1
+cd ml4hc-project2
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+### Cluster (GPU)
+
+The cluster provides most dependencies via a shared environment, so we use that as base and add our dependencies.
+
+Run the following:
+
+```bash
+python3 -m venv --system-site-packages ~/ml4hc_env
+source ~/ml4hc_env/bin/activate
+pip install -r requirements.txt
+```
+
+All SLURM jobs in this project activate `~/ml4hc_env` automatically.
+
+## Part 1
+
+All scripts are run as Python modules from the repository root. Outputs are written to `outputs/part1/`.
+
+### Exploratory Data Analysis
+
+Prints dataset schema, summary statistics, label distribution, and missing/nonsensical value checks. Saves five plots: numeric distributions, categorical distributions, label distribution, correlation heatmap, and boxplots.
+
+```bash
+python3 -m part1.data
+```
+
+### Logistic Lasso Regression
+
+Fits a logistic regression with L1 penalty using 5-fold cross-validation to select the regularization strength. Saves a feature coefficient plot.
+
+```bash
+python3 -m part1.lasso
+```
+
+Pass `--selected` to additionally fit an unregularized logistic regression on only the features selected by the Lasso (not technically required by the project):
+
+```bash
+python3 -m part1.lasso --selected
+```
+
+### Multi-Layer Perceptrons
+
+Trains MLP. Pass `--shap` to additionally compute and save SHAP explanations (4 per-sample bar plots and a general summary).
+
+```bash
+sbatch part1/run.sh mlp [--shap]
+```
+
+Output is written to `run_mlp_<jobid>.out`.
+
+### Neural Additive Models
+
+Trains a NAM with per-feature ExU sub-networks and an output penalty for regularisation. Prints test-set metrics. Pass `--plot` to additionally save shape function plots and a global feature importance bar chart.
+
+```bash
+sbatch part1/run.sh nam [--plot]
+```
+
+Output is written to `run_nam_<jobid>.out`.
 
 ## Part 2
 

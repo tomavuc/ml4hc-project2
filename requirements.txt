@@ -3,7 +3,10 @@ pandas
 pyarrow
 scikit-learn
 matplotlib
+seaborn
+scikit-learn
 torch
+shap
 torchvision
 tqdm
 ipykernel
