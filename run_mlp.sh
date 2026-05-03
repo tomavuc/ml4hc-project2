@@ -5,7 +5,7 @@
 #SBATCH --mem=8G
 
 module load cuda/12.6
-source /cluster/courses/ml4h/jupyter/bin/activate
+source ~/ml4hc_env/bin/activate
 
 cd ~/ml4hc-project2
-PYTHONUNBUFFERED=1 python3 -m part1.mlp
+PYTHONUNBUFFERED=1 python3 -m part1.mlp --shap

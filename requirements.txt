@@ -6,6 +6,7 @@ matplotlib
 seaborn
 scikit-learn
 torch
+shap
 torchvision
 tqdm
 ipykernel
