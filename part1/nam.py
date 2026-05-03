@@ -162,7 +162,7 @@ def plot_feature_importance(
     order = np.argsort(importance)
     fig, ax = plt.subplots(figsize=(8, max(4, n_features * 0.4)))
     ax.barh([data.feature_names[i] for i in order], importance[order], color="#4c72b0")
-    ax.set_xlabel("Mean |fᵢ(xᵢ)| on test set (log-odds)")
+    ax.set_xlabel("Mean |fᵢ(xᵢ)| on test set")
     ax.set_title("NAM global feature importance")
     fig.tight_layout()
     fig.savefig(out / "nam_feature_importance.png", dpi=150, bbox_inches="tight")
