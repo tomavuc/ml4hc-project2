@@ -76,9 +76,7 @@ def plot_feature_importance(
     fig, ax = plt.subplots(figsize=(8, max(4, len(coefs) * 0.4)))
     ax.barh(names_sorted, coefs_sorted, color=colors)
     ax.axvline(0, color="black", linewidth=0.8, linestyle="--")
-    ax.set_xlabel("Coefficient (log-odds per 1 std-dev or 0→1 change)")
-    ax.set_title("Logistic Lasso — feature coefficients\n"
-                 "orange = increases disease risk  ·  blue = protective  ·  grey = zeroed by L1")
+    ax.set_xlabel("Coefficients")
     fig.tight_layout()
     fig.savefig(out / "lasso_coefficients.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
